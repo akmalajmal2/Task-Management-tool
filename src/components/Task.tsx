@@ -1,0 +1,82 @@
+import clsx from "clsx";
+import { useState } from "react";
+import { CiViewBoard } from "react-icons/ci";
+import { FiSearch } from "react-icons/fi";
+import { LuClipboardList } from "react-icons/lu";
+import { TfiViewList } from "react-icons/tfi";
+import Table from "./Table";
+
+interface TaskStyleProps {
+  list: boolean;
+  board: boolean;
+}
+
+export default function Task() {
+  const [taskStyle, setTaskStyle] = useState<TaskStyleProps>({
+    list: true,
+    board: false,
+  });
+
+  return (
+    <main className=" p-3">
+      <div className="flex gap-1 items-center">
+        <LuClipboardList strokeWidth={2} size={20} />
+        <h2 className="leading-none text-lg font-medium">TaskBuddy</h2>
+      </div>
+      <div className="flex gap-4 items-center py-4">
+        <div
+          className={clsx(
+            ` flex p-0.5 gap-1 items-center`,
+            taskStyle.list ? "text-black border-b-[1.4px]" : " text-gray-400"
+          )}
+          onClick={() => setTaskStyle({ list: true, board: false })}
+        >
+          <TfiViewList size={10} className="cursor-pointer" />
+          <label className="leading-none text-sm font-medium cursor-pointer">
+            List
+          </label>
+        </div>
+        <div
+          className={clsx(
+            `flex p-0.5 gap-1 items-center`,
+            taskStyle.board ? "text-black border-b-[1.4px]" : " text-gray-400"
+          )}
+          onClick={() => setTaskStyle({ list: false, board: true })}
+        >
+          <CiViewBoard className="cursor-pointer" size={14} />
+          <label className="leading-none text-sm font-medium cursor-pointer">
+            Board
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-between">
+        <div className="flex gap-2 items-center">
+          <label className="text-xs text-gray-500 leading-none">
+            Filter by:{" "}
+          </label>
+          <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
+            Category
+          </button>
+          <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
+            Due Date
+          </button>
+        </div>
+        <div className="flex gap-3 items-center">
+          <div className="flex gap-1 border-1 border-gray-500 h-7 max-w-xs  rounded-2xl">
+            <FiSearch className="mt-1.5 ml-2" size={14} />
+            <input
+              placeholder="Search"
+              className="outline-none w-full h-full text-[0.7rem] text-gray-700 placeholder-gray-900"
+            />
+          </div>
+          <button className="uppercase px-6 py-2 text-[0.7rem] bg-[#7B1984] text-white rounded-2xl font-semibold">
+            Add Task
+          </button>
+        </div>
+      </div>
+      <br />
+      <hr />
+      <Table />
+    </main>
+  );
+}
