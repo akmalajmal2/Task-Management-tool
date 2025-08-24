@@ -4,7 +4,14 @@ import { CiViewBoard } from "react-icons/ci";
 import { FiSearch } from "react-icons/fi";
 import { LuClipboardList } from "react-icons/lu";
 import { TfiViewList } from "react-icons/tfi";
-import Table from "./Table";
+import { RiLogoutBoxLine } from "react-icons/ri";
+
+import TableBoard from "./TableBoard";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import TableList from "./TableList";
+import DropDownButton from "./DropDownButton/DropDownButton";
+import TodoForm from "./TodoForm";
 
 interface TaskStyleProps {
   list: boolean;
@@ -16,14 +23,26 @@ export default function Task() {
     list: true,
     board: false,
   });
+  const [isFormVisisble, setIsFormVisisble] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handelLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
+  const handleSelect = (selectedOption) => {
+    console.log("selected", selectedOption);
+  };
 
   return (
-    <main className=" p-3">
+    <main className=" p-3 w-full h-full flex flex-col">
       <div className="flex gap-1 items-center">
         <LuClipboardList strokeWidth={2} size={20} />
         <h2 className="leading-none text-lg font-medium">TaskBuddy</h2>
       </div>
-      <div className="flex gap-4 items-center py-4">
+      <div className="flex gap-4 items-center py-4 px-2">
         <div
           className={clsx(
             ` flex p-0.5 gap-1 items-center`,
@@ -48,18 +67,37 @@ export default function Task() {
             Board
           </label>
         </div>
+        <div className="ml-auto">
+          <button
+            className="px-3 py-2 flex gap-1 items-center font-semibold text-sm leading-none bg-[#FFF9F9] rounded-xl border border-[#7B198426] cursor-pointer "
+            onClick={handelLogout}
+          >
+            <RiLogoutBoxLine size={16} />
+            Logout
+          </button>
+        </div>
       </div>
       <div className="flex justify-between">
         <div className="flex gap-2 items-center">
           <label className="text-xs text-gray-500 leading-none">
-            Filter by:{" "}
+            Filter by:
           </label>
-          <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
+          {/* <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
             Category
           </button>
           <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
             Due Date
-          </button>
+          </button> */}
+          <DropDownButton
+            dataArr={[
+              { id: 1, label: "work" },
+              { id: 2, label: "personal" },
+            ]}
+            handleSelect={handleSelect}
+          >
+            Category
+          </DropDownButton>
+          <DropDownButton>Due Date</DropDownButton>
         </div>
         <div className="flex gap-3 items-center">
           <div className="flex gap-1 border-1 border-gray-500 h-7 max-w-xs  rounded-2xl">
@@ -69,14 +107,21 @@ export default function Task() {
               className="outline-none w-full h-full text-[0.7rem] text-gray-700 placeholder-gray-900"
             />
           </div>
-          <button className="uppercase px-6 py-2 text-[0.7rem] bg-[#7B1984] text-white rounded-2xl font-semibold">
+          <button
+            className="uppercase px-6 py-2 text-[0.7rem] bg-[#7B1984] text-white rounded-2xl font-semibold cursor-pointer"
+            onClick={() => setIsFormVisisble(true)}
+          >
             Add Task
           </button>
         </div>
       </div>
       <br />
-      <hr />
-      <Table />
+      {isFormVisisble && <TodoForm setIsFormVisisble={setIsFormVisisble} />}
+      <hr className="text-gray-200" />
+      {taskStyle.list && <TableList />}
+      {taskStyle.board && <TableBoard />}
+      {/* <TableList /> */}
+      {/* <TableBoard /> */}
     </main>
   );
 }

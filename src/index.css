@@ -10,3 +10,15 @@ body {
   height: 100%; */
   -webkit-font-smoothing: antialiased;
 }
+
+body tr:last-child td:first-child {
+  @apply rounded-b-xl;
+}
+
+body tr:last-child td:last-child {
+  @apply rounded-b-xl;
+}
+
+body tr:last-child {
+  @apply border-0;
+}
