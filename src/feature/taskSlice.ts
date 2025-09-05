@@ -49,6 +49,7 @@ export const updateTask = createAsyncThunk(
       const taskRef = doc(db, "task", id);
 
       await updateDoc(taskRef, updateData);
+      return { id, updatedData: updateData };
     } catch (error: any) {
       console.error("Firestore add error:", error);
     }
@@ -121,13 +122,13 @@ export const taskSlice = createSlice({
           (action.payload as string) ?? action.error.message ?? null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        console.log(9999, action.payload);
-        const { id, updatedData } = action.payload;
-        const index = state.taskItems.findIndex((task: any) => task.id === id);
+        const index = state.taskItems.findIndex(
+          (task: any) => task.id === action.payload?.id
+        );
         if (index !== -1) {
           state.taskItems[index] = {
             ...state.taskItems[index],
-            ...updatedData,
+            ...action.payload?.updatedData,
           };
         }
       });

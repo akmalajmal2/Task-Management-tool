@@ -84,7 +84,7 @@ export default function TodoForm({
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (formValue) {
-      console.log("test", formValue, formData);
+      console.log(444, formValue.id, formData);
       dispatch(updateTask({ id: formValue.id, updateData: formData }));
     } else {
       if (

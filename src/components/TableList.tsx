@@ -21,7 +21,7 @@ type taskItemProps = {
 
 export default function TableList() {
   const dispatch = useDispatch<AppDispatch>();
-  const { taskItems, loading } = useSelector((state: any) => state.task);
+  const { taskItems } = useSelector((state: any) => state.task);
   const [isNewTask, setIsNewTask] = useState<boolean>(false);
   const [isEditTask, setIsEditTask] = useState<boolean>(false);
   const [isCollapse, setIsCollapse] = useState({
