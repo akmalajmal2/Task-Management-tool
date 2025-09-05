@@ -5,7 +5,6 @@ import { AuthProvider } from "./context/AuthContext";
 import AuthLoader from "./utils/authLoader";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-// import TodoForm from "./components/TodoForm";
 
 function App() {
   const router = createBrowserRouter([

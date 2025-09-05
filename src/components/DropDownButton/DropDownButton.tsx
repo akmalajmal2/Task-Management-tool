@@ -8,8 +8,8 @@ const DropDownButton = ({
   handleSelect,
 }: {
   children: React.ReactNode;
-  dataArr: any;
-  handleSelect: () => void;
+  dataArr?: any;
+  handleSelect?: any;
 }) => {
   const [isTooltip, setIsTooltip] = useState(false);
   const handleSelectData = (data: any) => {
@@ -25,7 +25,7 @@ const DropDownButton = ({
         {children}
         <FaChevronDown size={10} className="leading-none" />
       </button>
-      {isTooltip && (
+      {isTooltip && dataArr && (
         <ToolTipOptions items={dataArr} handleSelect={handleSelectData} />
       )}
     </section>

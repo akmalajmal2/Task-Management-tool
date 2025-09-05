@@ -42,7 +42,7 @@ export default function TableList() {
 
   const [editTask, setEditTask] = useState<any>(null);
 
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState("");
 
   const todoItems = taskItems.filter(
     (task: taskItemProps) => task.status === "to-do"
@@ -54,7 +54,7 @@ export default function TableList() {
     (task: taskItemProps) => task.status === "completed"
   );
 
-  const hiddenDateRef = useRef(null);
+  const hiddenDateRef = useRef<HTMLInputElement>(null);
 
   const tableHeadingList = [
     { id: 1, label: "Task name" },
@@ -65,7 +65,7 @@ export default function TableList() {
   ];
 
   const handleOpenPicker = () => {
-    hiddenDateRef.current.showPicker();
+    if (hiddenDateRef.current) hiddenDateRef?.current?.showPicker();
   };
 
   const handleSelectStatus = (selectedItem: any) => {
@@ -95,7 +95,7 @@ export default function TableList() {
       setIsEditTask(true);
       setEditTask(selectedItemObj);
     }
-    setSelectedOption(null);
+    setSelectedOption("");
   };
 
   const handleSubmit = () => {

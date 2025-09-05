@@ -20,12 +20,15 @@ const statusOptions = [
   { id: 4, name: "completed" },
 ];
 
+type TodoFormProps = {
+  formValue?: any;
+  setIsFormVisisble: any;
+};
+
 export default function TodoForm({
   formValue,
   setIsFormVisisble,
-}: {
-  setIsFormVisisble: any;
-}) {
+}: TodoFormProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedButton, setSelectedButton] = useState({
     work: true,
@@ -59,7 +62,6 @@ export default function TodoForm({
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      console.log("Selected file:", file.name);
     }
   };
 

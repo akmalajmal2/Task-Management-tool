@@ -10,5 +10,13 @@ export default meta;
 type Story = StoryObj<typeof DropDownButtonComponent>;
 
 export const DropDownButton: Story = {
-  args: { label: "Due Date" },
+  args: {
+    dataArr: [
+      [
+        { id: 1, label: "work" },
+        { id: 2, label: "personal" },
+      ],
+    ],
+    children: "Choose",
+  },
 };

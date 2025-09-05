@@ -32,7 +32,7 @@ export default function Task() {
     navigate("/login");
   };
 
-  const handleSelect = (selectedOption) => {
+  const handleSelect = (selectedOption: any) => {
     console.log("selected", selectedOption);
   };
 
@@ -82,12 +82,6 @@ export default function Task() {
           <label className="text-xs text-gray-500 leading-none">
             Filter by:
           </label>
-          {/* <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
-            Category
-          </button>
-          <button className="px-3 py-1 border-1  border-gray-400 rounded-2xl font-normal text-xs text-gray-500">
-            Due Date
-          </button> */}
           <DropDownButton
             dataArr={[
               { id: 1, label: "work" },
