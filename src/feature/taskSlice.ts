@@ -1,12 +1,34 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { db } from "../firebase";
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+
+export const fetchTask = createAsyncThunk(
+  "task/fetchTasks",
+  async (_, { rejectWithValue }) => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "task"));
+      let tasks: any[] = [];
+      querySnapshot.forEach((doc) => {
+        tasks.push({ id: doc.id, ...doc.data() });
+      });
+      return tasks;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
 
 export const addTask = createAsyncThunk(
-  "task/addTTask",
+  "task/addTask",
   async (data: any, { rejectWithValue }) => {
     try {
-      console.log("hello");
       const docRef = await addDoc(collection(db, "task"), {
         ...data,
         createdAt: new Date(),
@@ -15,6 +37,32 @@ export const addTask = createAsyncThunk(
     } catch (error: any) {
       console.error("Firestore add error:", error);
       return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateTask = createAsyncThunk(
+  "task/updateTask",
+  async ({ id, updateData }: { id: string; updateData: any }) => {
+    try {
+      console.log(321, id, updateData);
+      const taskRef = doc(db, "task", id);
+
+      await updateDoc(taskRef, updateData);
+    } catch (error: any) {
+      console.error("Firestore add error:", error);
+    }
+  }
+);
+
+export const deleteTask = createAsyncThunk(
+  "task/deleteTask",
+  async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "task", id));
+      console.log("Task deleted:", id);
+    } catch (error) {
+      console.error("Error deleting task:", error);
     }
   }
 );
@@ -36,7 +84,7 @@ interface TaskStateProps {
 
 const initialState: TaskStateProps = {
   taskItems: [],
-  loading: false,
+  loading: true,
   error: null,
 };
 
@@ -47,7 +95,6 @@ export const taskSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(addTask.pending, (state) => {
-        console.log("load");
         state.loading = true;
       })
       .addCase(addTask.fulfilled, (state, action: any) => {
@@ -58,6 +105,31 @@ export const taskSlice = createSlice({
         state.loading = false;
         state.error =
           (action.payload as string) ?? action.error.message ?? null;
+      });
+    builder
+      .addCase(fetchTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTask.fulfilled, (state, action) => {
+        state.loading = false;
+        state.taskItems = action.payload;
+      })
+      .addCase(fetchTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          (action.payload as string) ?? action.error.message ?? null;
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        console.log(9999, action.payload);
+        const { id, updatedData } = action.payload;
+        const index = state.taskItems.findIndex((task: any) => task.id === id);
+        if (index !== -1) {
+          state.taskItems[index] = {
+            ...state.taskItems[index],
+            ...updatedData,
+          };
+        }
       });
   },
 });

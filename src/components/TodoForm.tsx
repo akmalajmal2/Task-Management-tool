@@ -1,7 +1,7 @@
 import { Bold, Italic, List, ListOrdered, Strikethrough } from "lucide-react";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Button from "./Button/Button";
-import { addTask } from "../feature/taskSlice";
+import { addTask, updateTask } from "../feature/taskSlice";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store/store";
 
@@ -21,6 +21,7 @@ const statusOptions = [
 ];
 
 export default function TodoForm({
+  formValue,
   setIsFormVisisble,
 }: {
   setIsFormVisisble: any;
@@ -31,11 +32,11 @@ export default function TodoForm({
     personal: false,
   });
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "work",
-    dueDate: "",
-    status: "",
+    title: formValue.title || "",
+    description: formValue.description || "",
+    category: formValue.category || "work",
+    dueDate: formValue.dueDate || "",
+    status: formValue.status || "",
   });
 
   const dispatch = useDispatch<AppDispatch>();
@@ -80,25 +81,37 @@ export default function TodoForm({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (
-      formData.title &&
-      formData.description &&
-      formData.dueDate &&
-      formData.status
-    ) {
-      console.log("submitted", formData);
-      dispatch(addTask(formData));
+    if (formValue) {
+      console.log("test", formValue, formData);
+      dispatch(updateTask({ id: formValue.id, updateData: formData }));
+    } else {
+      if (
+        formData.title &&
+        formData.description &&
+        formData.dueDate &&
+        formData.status
+      ) {
+        dispatch(addTask(formData));
 
-      setFormData({
-        title: "",
-        description: "",
-        category: "work",
-        dueDate: "",
-        status: "",
-      });
-      setIsFormVisisble(false);
+        setFormData({
+          title: "",
+          description: "",
+          category: "work",
+          dueDate: "",
+          status: "",
+        });
+      }
     }
+    setIsFormVisisble(false);
   };
+
+  useEffect(() => {
+    formData &&
+      setSelectedButton({
+        work: formData.category === "work" ? true : false,
+        personal: formData.category === "personal" ? true : false,
+      });
+  }, []);
 
   return (
     <section>
@@ -121,6 +134,7 @@ export default function TodoForm({
             <input
               className="w-full p-1.5 text-xs font-normal text-gray-500 outline-1 outline-gray-300 rounded-md bg-gray-50"
               placeholder="Task title"
+              value={formData.title}
               onChange={(e) =>
                 setFormData((prevData) => ({
                   ...prevData,
@@ -181,6 +195,7 @@ export default function TodoForm({
                 <input
                   type="date"
                   className="outline-1 rounded-md mt-2 p-1 text-sm text-gray-400 bg-gray-50 cursor-pointer"
+                  value={formData.dueDate}
                   min={new Date().toISOString().split("T")[0]}
                   onChange={(e) =>
                     setFormData((prevFormData) => ({
@@ -197,12 +212,10 @@ export default function TodoForm({
                 <select
                   className="outline-1 outline-gray-300 rounded-md mt-2 p-1 text-[0.7rem] leading-none text-gray-600 bg-gray-50 cursor-pointer"
                   onChange={handleSelectStatus}
+                  value={formData?.status}
                 >
                   {statusOptions.map((item) => (
-                    <option
-                      key={item.id}
-                      className={item.name !== "Choose" ? "uppercase" : ""}
-                    >
+                    <option key={item.id} className="uppercase">
                       {item.name}
                     </option>
                   ))}
@@ -246,10 +259,10 @@ export default function TodoForm({
               !formData.dueDate ||
               !formData.status
             }
-            className="uppercase px-4 py-2 text-xs bg-[#7B1984] text-white rounded-2xl font-semibold disabled:opacity-40"
+            className="uppercase px-4 py-2 text-xs bg-[#7B1984] text-white rounded-2xl font-semibold disabled:opacity-40 cursor-pointer"
             type="submit"
           >
-            Create
+            {formValue ? "Update" : "Create"}
           </button>
         </div>
       </form>

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase";
+import Loader from "../components/Loader/Loader";
 // import { ImOpt } from "react-icons/im";
 
 interface AuthContextType {
@@ -31,7 +32,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="inset-0 absolute opacity-50 flex justify-center items-center">
+        <Loader />
+      </div>
+    );
 
   return (
     <AuthContext.Provider value={{ user, logout }}>

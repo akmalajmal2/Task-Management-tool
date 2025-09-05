@@ -4,46 +4,57 @@ import { AiOutlineEnter } from "react-icons/ai";
 import { LuCalendarRange } from "react-icons/lu";
 import { SlOptions } from "react-icons/sl";
 import { FaAngleDown } from "react-icons/fa6";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ToolTipOptions from "./TooltipOptions/TooltipOptions";
+import { addTask, deleteTask, fetchTask } from "../feature/taskSlice";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch } from "../store/store";
+import TodoForm from "./TodoForm";
+
+type taskItemProps = {
+  id: string;
+  title: string;
+  dueDate: string;
+  status: string;
+  category: string;
+};
 
 export default function TableList() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { taskItems, loading } = useSelector((state: any) => state.task);
   const [isNewTask, setIsNewTask] = useState<boolean>(false);
+  const [isEditTask, setIsEditTask] = useState<boolean>(false);
   const [isCollapse, setIsCollapse] = useState({
     toDo: false,
     inProgress: false,
     completed: false,
   });
-
   const [formData, setFormData] = useState({
     title: "",
     category: "",
     status: "",
     dueDate: "",
   });
-  const listItems = [
-    {
-      id: 1,
-      title: "abcd",
-      dueDate: "2025-08-15",
-      status: "todo",
-      category: "work",
-    },
-    {
-      id: 2,
-      title: "abcd",
-      dueDate: "2025-08-15",
-      status: "todo",
-      category: "work",
-    },
-    {
-      id: 3,
-      title: "abcd",
-      dueDate: "2025-08-15",
-      status: "todo",
-      category: "work",
-    },
-  ];
+  const [isNewTaskDetailsSelected, setIsNewTaskDetailsSelected] = useState({
+    status: false,
+    category: false,
+  });
+
+  const [editTask, setEditTask] = useState<any>(null);
+
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const todoItems = taskItems.filter(
+    (task: taskItemProps) => task.status === "to-do"
+  );
+  const inProgressItems = taskItems.filter(
+    (task: taskItemProps) => task.status === "in-progress"
+  );
+  const completedItems = taskItems.filter(
+    (task: taskItemProps) => task.status === "completed"
+  );
+
+  const hiddenDateRef = useRef(null);
 
   const tableHeadingList = [
     { id: 1, label: "Task name" },
@@ -53,13 +64,11 @@ export default function TableList() {
     { id: 5, label: "Options" },
   ];
 
-  const [isNewTaskDetailsSelected, setIsNewTaskDetailsSelected] = useState({
-    status: false,
-    category: false,
-  });
+  const handleOpenPicker = () => {
+    hiddenDateRef.current.showPicker();
+  };
 
   const handleSelectStatus = (selectedItem: any) => {
-    console.log(22, selectedItem);
     setFormData((prevFormData) => ({
       ...prevFormData,
       status: selectedItem.label,
@@ -75,10 +84,40 @@ export default function TableList() {
     setIsNewTaskDetailsSelected({ status: false, category: false });
   };
 
-  console.log(234, formData);
+  const handleChooseOptions = (
+    selectedOption: { id: number; label: string },
+    selectedItemObj: taskItemProps
+  ) => {
+    if (selectedOption.label === "Delete") {
+      dispatch(deleteTask(selectedItemObj.id));
+      dispatch(fetchTask());
+    } else if (selectedOption.label === "Edit") {
+      setIsEditTask(true);
+      setEditTask(selectedItemObj);
+    }
+    setSelectedOption(null);
+  };
+
+  const handleSubmit = () => {
+    dispatch(addTask(formData));
+
+    setFormData({
+      title: "",
+      category: "work",
+      dueDate: "",
+      status: "",
+    });
+    setIsNewTask(false);
+  };
+  useEffect(() => {
+    dispatch(fetchTask());
+  }, [dispatch]);
 
   return (
     <section>
+      {isEditTask && (
+        <TodoForm formValue={editTask} setIsFormVisisble={setIsEditTask} />
+      )}
       <table className="w-full">
         <thead>
           <tr className="text-gray-500 text-xs text-left font-normal border-t-1 border-gray-300 leading-none ">
@@ -92,18 +131,17 @@ export default function TableList() {
         <tbody>
           <tr className="bg-[#fac3ff] text-left">
             <td className="p-2 rounded-t-xl font-semibold text-lg" colSpan={5}>
-              <div className="flex justify-between items-center px-2">
+              <div
+                className="flex justify-between items-center px-2 cursor-pointer"
+                onClick={() =>
+                  setIsCollapse((prevCollapse) => ({
+                    ...prevCollapse,
+                    toDo: !prevCollapse.toDo,
+                  }))
+                }
+              >
                 <p>Todo (3)</p>
-                <FaAngleDown
-                  size={15}
-                  className="cursor-pointer"
-                  onClick={() =>
-                    setIsCollapse((prevCollapse) => ({
-                      ...prevCollapse,
-                      toDo: !prevCollapse.toDo,
-                    }))
-                  }
-                />
+                <FaAngleDown size={15} className="cursor-pointer" />
               </div>
             </td>
           </tr>
@@ -139,7 +177,10 @@ export default function TableList() {
                         }
                       />
                       <div className="flex gap-3">
-                        <button className="uppercase px-2.5 py-1.5 text-[0.65rem] bg-[#7B1984] text-white rounded-2xl font-semibold flex gap-1 justify-center leading-none cursor-pointer">
+                        <button
+                          className="uppercase px-2.5 py-1.5 text-[0.65rem] bg-[#7B1984] text-white rounded-2xl font-semibold flex gap-1 justify-center leading-none cursor-pointer"
+                          onClick={handleSubmit}
+                        >
                           Add <AiOutlineEnter size={11} />
                         </button>
                         <button
@@ -152,8 +193,22 @@ export default function TableList() {
                     </div>
                   </td>
                   <td>
-                    <button className="flex gap-1 items-center text-gray-600 text-[0.7rem] border-gray-400 border-1 rounded-2xl leading-none px-3 py-2 hover:bg-gray-200 cursor-pointer">
-                      <input type="date" className="hidden" />
+                    <button
+                      className="flex gap-1 items-center text-gray-600 text-[0.7rem] border-gray-400 border-1 rounded-2xl leading-none px-3 py-2 hover:bg-gray-200 cursor-pointer"
+                      onClick={handleOpenPicker}
+                    >
+                      <input
+                        type="date"
+                        className="hidden"
+                        min={new Date().toISOString().split("T")[0]}
+                        ref={hiddenDateRef}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            dueDate: e.target.value,
+                          }))
+                        }
+                      />
                       <LuCalendarRange size={13} className="text-gray-700" />
                       Add date
                     </button>
@@ -178,6 +233,7 @@ export default function TableList() {
                           { id: 4, label: "completed" },
                         ]}
                         handleSelect={handleSelectStatus}
+                        isUpperCaseText={true}
                       />
                     )}
                   </td>
@@ -200,13 +256,14 @@ export default function TableList() {
                           { id: 2, label: "personal" },
                         ]}
                         handleSelect={handleSelectCategory}
+                        isUpperCaseText={true}
                       />
                     )}
                   </td>
                   <td></td>
                 </tr>
               )}
-              {listItems.map((item) => (
+              {todoItems.map((item: taskItemProps) => (
                 <tr
                   key={item.id}
                   className="border-b-1 border-gray-300 text-sm text-left bg-gray-100"
@@ -231,8 +288,23 @@ export default function TableList() {
                   <td className="p-2">{item.dueDate}</td>
                   <td className="p-2">{item.status}</td>
                   <td className="p-2">{item.category}</td>
-                  <td>
-                    <SlOptions size={10} />
+                  <td className="cursor-pointer">
+                    <SlOptions
+                      size={10}
+                      onClick={() => setSelectedOption(item.id)}
+                    />
+                    {selectedOption === item.id && (
+                      <ToolTipOptions
+                        className=" -ml-25"
+                        items={[
+                          { id: 1, label: "Edit" },
+                          { id: 2, label: "Delete" },
+                        ]}
+                        handleSelect={(selectedOption) =>
+                          handleChooseOptions(selectedOption, item)
+                        }
+                      />
+                    )}
                   </td>
                 </tr>
               ))}
@@ -245,23 +317,23 @@ export default function TableList() {
         <tbody>
           <tr className="bg-[#85D9F1] text-left">
             <td className="p-2 rounded-t-xl font-semibold text-lg" colSpan={5}>
-              <div className="flex justify-between items-center px-2">
+              <div
+                className="flex justify-between items-center px-2 cursor-pointer"
+                onClick={() =>
+                  setIsCollapse((prevCollapse) => ({
+                    ...prevCollapse,
+                    inProgress: !prevCollapse.inProgress,
+                  }))
+                }
+              >
                 <p>In-Progress (3)</p>
-                <FaAngleDown
-                  size={15}
-                  onClick={() =>
-                    setIsCollapse((prevCollapse) => ({
-                      ...prevCollapse,
-                      inProgress: !prevCollapse.inProgress,
-                    }))
-                  }
-                />
+                <FaAngleDown size={15} />
               </div>
             </td>
           </tr>
           {!isCollapse.inProgress && (
             <>
-              {listItems.map((item) => (
+              {inProgressItems.map((item: taskItemProps) => (
                 <tr
                   key={item.id}
                   className="border-b-1 border-gray-300 text-sm text-left bg-gray-100"
@@ -270,7 +342,7 @@ export default function TableList() {
                     <div className="flex items-center">
                       <input
                         type="checkbox"
-                        className="outline-[#a7a7a7] accent-[#7B1984] cursor-pointer "
+                        className="outline-[#a7a7a7] accent-[#2683B5] cursor-pointer "
                       />
                       <SlOptionsVertical size={10} className="text-[#a7a7a7]" />
                       <SlOptionsVertical
@@ -286,8 +358,23 @@ export default function TableList() {
                   <td className="p-2">{item.dueDate}</td>
                   <td className="p-2">{item.status}</td>
                   <td className="p-2">{item.category}</td>
-                  <td>
-                    <SlOptions size={10} />
+                  <td className="cursor-pointer">
+                    <SlOptions
+                      size={10}
+                      onClick={() => setSelectedOption(item.id)}
+                    />
+                    {selectedOption === item.id && (
+                      <ToolTipOptions
+                        className=" -ml-25"
+                        items={[
+                          { id: 1, label: "Edit" },
+                          { id: 2, label: "Delete" },
+                        ]}
+                        handleSelect={(selectedOption) =>
+                          handleChooseOptions(selectedOption, item)
+                        }
+                      />
+                    )}
                   </td>
                 </tr>
               ))}
@@ -300,23 +387,23 @@ export default function TableList() {
         <tbody>
           <tr className="bg-[#CEFFCC] text-left">
             <td className="p-2 rounded-t-xl font-semibold text-lg" colSpan={5}>
-              <div className="flex justify-between items-center px-2">
+              <div
+                className="flex justify-between items-center px-2 cursor-pointer"
+                onClick={() =>
+                  setIsCollapse((prevCollapse) => ({
+                    ...prevCollapse,
+                    completed: !prevCollapse.completed,
+                  }))
+                }
+              >
                 <p>Completed (3)</p>
-                <FaAngleDown
-                  size={15}
-                  onClick={() =>
-                    setIsCollapse((prevCollapse) => ({
-                      ...prevCollapse,
-                      completed: !prevCollapse.completed,
-                    }))
-                  }
-                />
+                <FaAngleDown size={15} />
               </div>
             </td>
           </tr>
           {!isCollapse.completed && (
             <>
-              {listItems.map((item) => (
+              {completedItems.map((item: taskItemProps) => (
                 <tr
                   key={item.id}
                   className="border-b-1 border-gray-300 text-sm text-left bg-gray-100"
@@ -325,7 +412,7 @@ export default function TableList() {
                     <div className="flex items-center">
                       <input
                         type="checkbox"
-                        className="outline-[#a7a7a7] accent-[#7B1984] cursor-pointer "
+                        className="outline-[#a7a7a7] accent-[#1B8D17] cursor-pointer "
                       />
                       <SlOptionsVertical size={10} className="text-[#a7a7a7]" />
                       <SlOptionsVertical
@@ -333,7 +420,7 @@ export default function TableList() {
                         className="text-[#a7a7a7] "
                       />
                       <div className="flex gap-0.5 items-center">
-                        <FaCircleCheck size={14} className="text-[#a7a7a7]" />
+                        <FaCircleCheck size={14} className="text-[#1B8D17]" />
                         <p className="leading-none">{item.title}</p>
                       </div>
                     </div>
@@ -341,8 +428,23 @@ export default function TableList() {
                   <td className="p-2">{item.dueDate}</td>
                   <td className="p-2">{item.status}</td>
                   <td className="p-2">{item.category}</td>
-                  <td>
-                    <SlOptions size={10} />
+                  <td className="cursor-pointer">
+                    <SlOptions
+                      size={10}
+                      onClick={() => setSelectedOption(item.id)}
+                    />
+                    {selectedOption === item.id && (
+                      <ToolTipOptions
+                        className=" -ml-25"
+                        items={[
+                          { id: 1, label: "Edit" },
+                          { id: 2, label: "Delete" },
+                        ]}
+                        handleSelect={(selectedOption) =>
+                          handleChooseOptions(selectedOption, item)
+                        }
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

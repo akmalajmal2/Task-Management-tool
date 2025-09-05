@@ -120,8 +120,6 @@ export default function Task() {
       <hr className="text-gray-200" />
       {taskStyle.list && <TableList />}
       {taskStyle.board && <TableBoard />}
-      {/* <TableList /> */}
-      {/* <TableBoard /> */}
     </main>
   );
 }
