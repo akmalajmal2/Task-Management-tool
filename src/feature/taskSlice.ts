@@ -16,13 +16,20 @@ export const fetchTask = createAsyncThunk(
       const querySnapshot = await getDocs(collection(db, "task"));
       let tasks: any[] = [];
       querySnapshot.forEach((doc) => {
-        tasks.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        tasks.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt
+            ? data.createdAt.toDate().toISOString()
+            : null,
+        });
       });
       return tasks;
     } catch (err: any) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 export const addTask = createAsyncThunk(
@@ -33,12 +40,12 @@ export const addTask = createAsyncThunk(
         ...data,
         createdAt: new Date(),
       });
-      return { id: docRef.id, ...data };
+      return { id: docRef.id, ...data, createdAt: new Date().toISOString() };
     } catch (error: any) {
       console.error("Firestore add error:", error);
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const updateTask = createAsyncThunk(
@@ -53,7 +60,7 @@ export const updateTask = createAsyncThunk(
     } catch (error: any) {
       console.error("Firestore add error:", error);
     }
-  }
+  },
 );
 
 export const deleteTask = createAsyncThunk(
@@ -65,7 +72,7 @@ export const deleteTask = createAsyncThunk(
     } catch (error) {
       console.error("Error deleting task:", error);
     }
-  }
+  },
 );
 
 interface Task {
@@ -123,7 +130,7 @@ export const taskSlice = createSlice({
       })
       .addCase(updateTask.fulfilled, (state, action) => {
         const index = state.taskItems.findIndex(
-          (task: any) => task.id === action.payload?.id
+          (task: any) => task.id === action.payload?.id,
         );
         if (index !== -1) {
           state.taskItems[index] = {

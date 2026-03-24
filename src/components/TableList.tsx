@@ -45,13 +45,13 @@ export default function TableList() {
   const [selectedOption, setSelectedOption] = useState("");
 
   const todoItems = taskItems.filter(
-    (task: taskItemProps) => task.status === "to-do"
+    (task: taskItemProps) => task.status === "to-do",
   );
   const inProgressItems = taskItems.filter(
-    (task: taskItemProps) => task.status === "in-progress"
+    (task: taskItemProps) => task.status === "in-progress",
   );
   const completedItems = taskItems.filter(
-    (task: taskItemProps) => task.status === "completed"
+    (task: taskItemProps) => task.status === "completed",
   );
 
   const hiddenDateRef = useRef<HTMLInputElement>(null);
@@ -86,7 +86,7 @@ export default function TableList() {
 
   const handleChooseOptions = (
     selectedOption: { id: number; label: string },
-    selectedItemObj: taskItemProps
+    selectedItemObj: taskItemProps,
   ) => {
     if (selectedOption.label === "Delete") {
       dispatch(deleteTask(selectedItemObj.id));
@@ -120,7 +120,7 @@ export default function TableList() {
       )}
       <table className="w-full">
         <thead>
-          <tr className="text-gray-500 text-xs text-left font-normal border-t-1 border-gray-300 leading-none ">
+          <tr className="text-gray-700 text-sm text-left font-normal border-t-1 border-gray-300 leading-none ">
             {tableHeadingList.map((headings) => (
               <th className="py-2" key={headings.id}>
                 {headings.label !== "Options" ? headings.label : ""}
@@ -147,7 +147,7 @@ export default function TableList() {
           </tr>
           {!isCollapse.toDo && (
             <>
-              <tr className="border-b-1 border-gray-300 text-sm text-left bg-gray-100">
+              {/* <tr className="border-b-1 border-gray-300 text-sm text-left bg-gray-100">
                 <td colSpan={5} className="uppercase">
                   <div
                     className="flex gap-1.5 items-center py-2 ml-6 cursor-pointer"
@@ -161,7 +161,7 @@ export default function TableList() {
                     </p>
                   </div>
                 </td>
-              </tr>
+              </tr> */}
               {isNewTask && (
                 <tr className="border-b-1 border-gray-300 text-sm text-left bg-gray-100">
                   <td className="uppercase ">

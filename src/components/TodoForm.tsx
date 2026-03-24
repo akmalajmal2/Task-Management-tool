@@ -35,11 +35,11 @@ export default function TodoForm({
     personal: false,
   });
   const [formData, setFormData] = useState({
-    title: formValue.title || "",
-    description: formValue.description || "",
-    category: formValue.category || "work",
-    dueDate: formValue.dueDate || "",
-    status: formValue.status || "",
+    title: formValue?.title || "",
+    description: formValue?.description || "",
+    category: formValue?.category || "work",
+    dueDate: formValue?.dueDate || "",
+    status: formValue?.status || "",
   });
 
   const dispatch = useDispatch<AppDispatch>();
@@ -84,7 +84,6 @@ export default function TodoForm({
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (formValue) {
-      console.log(444, formValue.id, formData);
       dispatch(updateTask({ id: formValue.id, updateData: formData }));
     } else {
       if (

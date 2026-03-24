@@ -37,7 +37,7 @@ export default function Task() {
   };
 
   return (
-    <main className=" p-3 w-full h-full flex flex-col">
+    <main className="p-3 w-full h-full flex flex-col">
       <div className="flex gap-1 items-center">
         <LuClipboardList strokeWidth={2} size={20} />
         <h2 className="leading-none text-lg font-medium">TaskBuddy</h2>
@@ -46,7 +46,7 @@ export default function Task() {
         <div
           className={clsx(
             ` flex p-0.5 gap-1 items-center`,
-            taskStyle.list ? "text-black border-b-[1.4px]" : " text-gray-400"
+            taskStyle.list ? "text-black border-b-[1.4px]" : " text-gray-400",
           )}
           onClick={() => setTaskStyle({ list: true, board: false })}
         >
@@ -58,7 +58,7 @@ export default function Task() {
         <div
           className={clsx(
             `flex p-0.5 gap-1 items-center`,
-            taskStyle.board ? "text-black border-b-[1.4px]" : " text-gray-400"
+            taskStyle.board ? "text-black border-b-[1.4px]" : " text-gray-400",
           )}
           onClick={() => setTaskStyle({ list: false, board: true })}
         >
@@ -77,7 +77,7 @@ export default function Task() {
           </button>
         </div>
       </div>
-      <div className="flex justify-between">
+      <div className="flex gap-4 flex-col md:flex-row justify-between">
         <div className="flex gap-2 items-center">
           <label className="text-xs text-gray-500 leading-none">
             Filter by:

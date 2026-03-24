@@ -14,9 +14,7 @@ function App() {
   return (
     <AuthProvider>
       <Provider store={store}>
-        <div className=" h-screen">
-          <RouterProvider router={router} />
-        </div>
+        <RouterProvider router={router} />
       </Provider>
     </AuthProvider>
   );

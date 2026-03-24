@@ -24,7 +24,7 @@ export default function TableBoard() {
     },
   ];
   return (
-    <section className="flex gap-5 h-full w-5xl flex-1">
+    <section className="flex gap-5 h-full w-full flex-1">
       <ul className=" bg-[#58575112] flex-1 rounded-xl border border-[#58575112] flex flex-col gap-3 px-3">
         <span className="uppercase bg-[#FAC3FF] p-2 w-fit font-medium text-sm rounded-sm px-2 py-1 mt-2.5">
           To-do
